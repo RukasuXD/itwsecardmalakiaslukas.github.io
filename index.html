@@ -216,9 +216,9 @@
   <main class="container">
     <!-- VERIFY STAGE -->
     <div class="verify-screen active" id="verifyScreen">
-      <span class="badge">Identity Check</span>
-      <h1>Enter Your Name</h1>
-      <p class="desc">Please enter the required name to access the puzzle.</p>
+      <span class="badge">Identity Check muna</span>
+      <h1>Enter name :></h1>
+      <p class="desc">Please enter "Roan" to access the puzzle.</p>
       
       <div class="form-group">
         <input type="text" id="nameInput" class="text-input" placeholder="Type name here..." autocomplete="off" />
@@ -261,7 +261,6 @@
         this.boardEl = document.getElementById(boardId);
         this.movesEl = document.getElementById(movesId);
         this.onSolved = onSolved;
-        // 0 to 8, where 8 is the empty tile
         this.tiles = [0, 1, 2, 3, 4, 5, 6, 7, 8];
         this.moves = 0;
         this.isCompleted = false;
@@ -369,7 +368,7 @@
           puzzleScreen.classList.add('active');
           puzzle.shuffle();
         } else {
-          errorMsg.textContent = 'Incorrect name. Please try again!';
+          errorMsg.textContent = "oops mali. try and try until you don't lie!";
           nameInput.style.borderColor = 'var(--error-color)';
         }
       }
@@ -395,4 +394,3 @@
   </script>
 </body>
 </html>
-```[cite: 3]
