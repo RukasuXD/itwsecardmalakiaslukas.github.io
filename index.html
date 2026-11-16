@@ -16,6 +16,7 @@
       --text-secondary: #8b949e;
       --accent: #58a6ff;
       --accent-gradient: linear-gradient(135deg, #58a6ff, #bc8cff);
+      --error-color: #f85149;
     }
 
     *, *::before, *::after {
@@ -72,6 +73,44 @@
       color: var(--text-secondary);
       margin-bottom: 1.5rem;
       line-height: 1.5;
+    }
+
+    /* Verify Screen */
+    .verify-screen {
+      display: none;
+    }
+
+    .verify-screen.active {
+      display: block;
+    }
+
+    .form-group {
+      margin-bottom: 1rem;
+    }
+
+    .text-input {
+      width: 100%;
+      padding: 0.75rem;
+      border-radius: 10px;
+      border: 1px solid var(--border-color);
+      background: rgba(0, 0, 0, 0.3);
+      color: var(--text-primary);
+      font-size: 0.95rem;
+      text-align: center;
+      outline: none;
+      font-family: inherit;
+      transition: border-color 0.2s ease;
+    }
+
+    .text-input:focus {
+      border-color: var(--accent);
+    }
+
+    .error-msg {
+      color: var(--error-color);
+      font-size: 0.8rem;
+      margin-bottom: 1rem;
+      min-height: 1.2em;
     }
 
     /* Puzzle Board */
@@ -139,17 +178,15 @@
       color: #fff;
     }
 
-    /* Reveal Screen */
+    /* Screens Visibility */
+    .puzzle-screen,
     .reveal-screen {
       display: none;
     }
 
+    .puzzle-screen.active,
     .reveal-screen.active {
       display: block;
-    }
-
-    .puzzle-screen.hidden {
-      display: none;
     }
 
     .reveal-img {
@@ -177,6 +214,19 @@
 <body>
 
   <main class="container">
+    <!-- VERIFY STAGE -->
+    <div class="verify-screen active" id="verifyScreen">
+      <span class="badge">Identity Check</span>
+      <h1>Enter Your Name</h1>
+      <p class="desc">Please enter the required name to access the puzzle.</p>
+      
+      <div class="form-group">
+        <input type="text" id="nameInput" class="text-input" placeholder="Type name here..." autocomplete="off" />
+      </div>
+      <div class="error-msg" id="errorMsg"></div>
+      <button type="button" class="btn btn-primary" id="verifyBtn" style="width: 100%;">Continue</button>
+    </div>
+
     <!-- PUZZLE STAGE -->
     <div class="puzzle-screen" id="puzzleScreen">
       <span class="badge">Mini Puzzle Challenge Time!</span>
@@ -300,12 +350,35 @@
     }
 
     document.addEventListener('DOMContentLoaded', () => {
+      const verifyScreen = document.getElementById('verifyScreen');
       const puzzleScreen = document.getElementById('puzzleScreen');
       const revealScreen = document.getElementById('revealScreen');
+      const nameInput = document.getElementById('nameInput');
+      const verifyBtn = document.getElementById('verifyBtn');
+      const errorMsg = document.getElementById('errorMsg');
 
       const puzzle = new ImagePuzzle('puzzleBoard', 'moveCount', () => {
-        puzzleScreen.classList.add('hidden');
+        puzzleScreen.classList.remove('active');
         revealScreen.classList.add('active');
+      });
+
+      function handleVerification() {
+        const enteredName = nameInput.value.trim();
+        if (enteredName === 'Roan') {
+          verifyScreen.classList.remove('active');
+          puzzleScreen.classList.add('active');
+          puzzle.shuffle();
+        } else {
+          errorMsg.textContent = 'Incorrect name. Please try again!';
+          nameInput.style.borderColor = 'var(--error-color)';
+        }
+      }
+
+      verifyBtn.addEventListener('click', handleVerification);
+      nameInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+          handleVerification();
+        }
       });
 
       document.getElementById('shuffleBtn').addEventListener('click', () => puzzle.shuffle());
@@ -313,10 +386,13 @@
 
       document.getElementById('replayBtn').addEventListener('click', () => {
         revealScreen.classList.remove('active');
-        puzzleScreen.classList.remove('hidden');
-        puzzle.shuffle();
+        verifyScreen.classList.add('active');
+        nameInput.value = '';
+        errorMsg.textContent = '';
+        nameInput.style.borderColor = 'var(--border-color)';
       });
     });
   </script>
 </body>
 </html>
+```[cite: 3]
