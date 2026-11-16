@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Interactive Puzzle Greeting Card</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,700;1,600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg-color: #0d1117;
+      --card-bg: #161b22;
+      --border-color: rgba(255, 255, 255, 0.1);
+      --text-primary: #f0f6fc;
+      --text-secondary: #8b949e;
+      --accent: #58a6ff;
+      --accent-gradient: linear-gradient(135deg, #58a6ff, #bc8cff);
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      min-height: 100vh;
+      background-color: var(--bg-color);
+      color: var(--text-primary);
+      font-family: 'Inter', sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 420px;
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 20px;
+      padding: 2rem;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      text-align: center;
+    }
+
+    .badge {
+      display: inline-block;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      padding: 0.3rem 0.8rem;
+      border-radius: 999px;
+      background: rgba(88, 166, 255, 0.15);
+      color: var(--accent);
+      margin-bottom: 1rem;
+    }
+
+    h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.75rem;
+      margin-bottom: 0.5rem;
+      color: var(--text-primary);
+    }
+
+    p.desc {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      margin-bottom: 1.5rem;
+      line-height: 1.5;
+    }
+
+    /* Puzzle Board */
+    .puzzle-board {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 4px;
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      background: #000;
+      border-radius: 12px;
+      border: 2px solid var(--border-color);
+      overflow: hidden;
+      margin-bottom: 1.25rem;
+    }
+
+    .puzzle-tile {
+      background-image: url('profile.jpg');
+      background-size: 300% 300%;
+      border: none;
+      cursor: pointer;
+      transition: filter 0.2s ease;
+    }
+
+    .puzzle-tile:hover:not(.empty) {
+      filter: brightness(1.15);
+    }
+
+    .puzzle-tile.empty {
+      background: #111;
+      cursor: default;
+    }
+
+    .stats {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      margin-bottom: 1.25rem;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 0.5rem;
+      justify-content: center;
+    }
+
+    .btn {
+      padding: 0.6rem 1.2rem;
+      border-radius: 10px;
+      border: 1px solid var(--border-color);
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text-primary);
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+
+    .btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .btn-primary {
+      background: var(--accent-gradient);
+      border: none;
+      color: #fff;
+    }
+
+    /* Reveal Screen */
+    .reveal-screen {
+      display: none;
+    }
+
+    .reveal-screen.active {
+      display: block;
+    }
+
+    .puzzle-screen.hidden {
+      display: none;
+    }
+
+    .reveal-img {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid var(--accent);
+      margin: 0 auto 1rem;
+      box-shadow: 0 4px 15px rgba(88, 166, 255, 0.3);
+    }
+
+    .message-box {
+      background: rgba(0, 0, 0, 0.25);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 1.25rem;
+      font-size: 0.95rem;
+      line-height: 1.6;
+      color: var(--text-secondary);
+      margin-bottom: 1.5rem;
+    }
+  </style>
+</head>
+<body>
+
+  <main class="container">
+    <!-- PUZZLE STAGE -->
+    <div class="puzzle-screen" id="puzzleScreen">
+      <span class="badge">Mini Puzzle Challenge</span>
+      <h1>Complete the Picture</h1>
+      <p class="desc">Slide the tiles into order to unlock the secret message.</p>
+
+      <div class="puzzle-board" id="puzzleBoard"></div>
+
+      <div class="stats">Moves: <span id="moveCount">0</span></div>
+
+      <div class="btn-group">
+        <button type="button" class="btn" id="shuffleBtn">Shuffle</button>
+        <button type="button" class="btn btn-primary" id="solveBtn">Quick Solve ✨</button>
+      </div>
+    </div>
+
+    <!-- REVEAL STAGE -->
+    <div class="reveal-screen" id="revealScreen">
+      <span class="badge">Unlocked successfully</span>
+      <img src="profile.jpg" alt="Profile" class="reveal-img" />
+      <h1>Special Message</h1>
+      <div class="message-box">
+        You successfully solved the puzzle! Thank you for checking out this interactive card. Wishing you an amazing day ahead filled with joy and success!
+      </div>
+      <button type="button" class="btn btn-primary" id="replayBtn" style="width: 100%;">Play Again</button>
+    </div>
+  </main>
+
+  <script>
+    class ImagePuzzle {
+      constructor(boardId, movesId, onSolved) {
+        this.boardEl = document.getElementById(boardId);
+        this.movesEl = document.getElementById(movesId);
+        this.onSolved = onSolved;
+        // 0 to 8, where 8 is the empty tile
+        this.tiles = [0, 1, 2, 3, 4, 5, 6, 7, 8];
+        this.moves = 0;
+        this.isCompleted = false;
+        this.shuffle();
+      }
+
+      getNeighbors(idx) {
+        const row = Math.floor(idx / 3);
+        const col = idx % 3;
+        const neighbors = [];
+        if (row > 0) neighbors.push(idx - 3);
+        if (row < 2) neighbors.push(idx + 3);
+        if (col > 0) neighbors.push(idx - 1);
+        if (col < 2) neighbors.push(idx + 1);
+        return neighbors;
+      }
+
+      shuffle(steps = 40) {
+        this.tiles = [0, 1, 2, 3, 4, 5, 6, 7, 8];
+        this.moves = 0;
+        this.isCompleted = false;
+        let lastEmpty = -1;
+
+        for (let i = 0; i < steps; i++) {
+          const emptyIdx = this.tiles.indexOf(8);
+          const neighbors = this.getNeighbors(emptyIdx).filter(n => n !== lastEmpty);
+          const pick = neighbors[Math.floor(Math.random() * neighbors.length)];
+          lastEmpty = emptyIdx;
+          [this.tiles[emptyIdx], this.tiles[pick]] = [this.tiles[pick], this.tiles[emptyIdx]];
+        }
+
+        if (this.checkWin()) {
+          [this.tiles[0], this.tiles[1]] = [this.tiles[1], this.tiles[0]];
+        }
+        this.render();
+      }
+
+      quickSolve() {
+        this.tiles = [0, 1, 2, 3, 4, 5, 6, 7, 8];
+        this.moves = 0;
+        this.render();
+        this.isCompleted = true;
+        setTimeout(() => this.onSolved(), 300);
+      }
+
+      clickTile(idx) {
+        if (this.isCompleted) return;
+        const emptyIdx = this.tiles.indexOf(8);
+        if (this.getNeighbors(emptyIdx).includes(idx)) {
+          [this.tiles[emptyIdx], this.tiles[idx]] = [this.tiles[idx], this.tiles[emptyIdx]];
+          this.moves++;
+          this.render();
+
+          if (this.checkWin()) {
+            this.isCompleted = true;
+            setTimeout(() => this.onSolved(), 400);
+          }
+        }
+      }
+
+      checkWin() {
+        const target = [0, 1, 2, 3, 4, 5, 6, 7, 8];
+        return this.tiles.every((val, i) => val === target[i]);
+      }
+
+      render() {
+        this.movesEl.textContent = this.moves;
+        this.boardEl.innerHTML = '';
+
+        this.tiles.forEach((tileVal, idx) => {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'puzzle-tile';
+
+          if (tileVal === 8) {
+            btn.classList.add('empty');
+          } else {
+            const row = Math.floor(tileVal / 3);
+            const col = tileVal % 3;
+            btn.style.backgroundPosition = `${(col / 2) * 100}% ${(row / 2) * 100}%`;
+            btn.addEventListener('click', () => this.clickTile(idx));
+          }
+          this.boardEl.appendChild(btn);
+        });
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const puzzleScreen = document.getElementById('puzzleScreen');
+      const revealScreen = document.getElementById('revealScreen');
+
+      const puzzle = new ImagePuzzle('puzzleBoard', 'moveCount', () => {
+        puzzleScreen.classList.add('hidden');
+        revealScreen.classList.add('active');
+      });
+
+      document.getElementById('shuffleBtn').addEventListener('click', () => puzzle.shuffle());
+      document.getElementById('solveBtn').addEventListener('click', () => puzzle.quickSolve());
+
+      document.getElementById('replayBtn').addEventListener('click', () => {
+        revealScreen.classList.remove('active');
+        puzzleScreen.classList.remove('hidden');
+        puzzle.shuffle();
+      });
+    });
+  </script>
+</body>
+</html>
